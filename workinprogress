@@ -1,0 +1,153 @@
+import random
+class Cards:
+    def __init__(self,rank,suit):
+        picturevalues_dict = {"A":1,"K":13,"Q":12,"J":11}
+        self.rank = rank
+        self.suit = suit
+        self.face = 'down'
+        if type(rank)==int:
+            self.value = rank
+        else:
+            self.value = picturevalues_dict[rank]
+    def get_rank(self):
+        return self.rank
+    def get_suit(self):
+        return self.suit
+    def get_value(self):
+        return self.value
+    def __str__(self):
+        if self.face == 'up':    
+            return(str(self.rank)+self.suit)
+        else:
+            return('XX')
+
+class Deck:
+    
+    def __init__(self):
+        self.deck = []
+        for rank in ["A",2,3,4,5,6,7,8,9,10,"J","Q","K"]:
+            for suit in "SHDC":
+                self.deck.append(Cards(rank, suit))
+                
+    def __str__(self):
+        return self.deck[0].__str__()
+    def deal(self):
+        carddealt = self.deck[0]
+        self.deck.pop(0)
+        return carddealt
+    
+    def shuffle(self):
+        random.shuffle(self.deck)
+    def checktopcardface(self):
+        if len(self.deck)== 0 :
+            pass
+        else:
+            self.deck[0].face='up'
+## NOTE: Column , deck and foundation are storages of cards.
+## could be inherited from same baseclass leaving inheriting for later tho
+class Column:
+    def __init__(self):
+        self.storage = []
+    def __str__(self):
+        returnstr = ''
+        for card in self.storage:
+            returnstr+=card.__str__()
+        return returnstr
+    def deal(self):
+        carddealt = self.storage[-1]
+        self.storage.pop()
+        return carddealt
+        
+    def addcard(self,card):
+        self.storage.append(card)
+    def checktopcardface(self):
+        if len(self.storage)==0:
+            pass
+        elif self.storage[-1].face=='down':
+            self.storage[-1].face = 'up'
+        
+class Foundation:
+    def __init__(self,suit):
+        self.storage = [] 
+        self.suit = suit
+    def __str__(self):
+        if len(self.storage) == 0:
+            return "empty"
+        else: return self.storage[-1]
+    def addcard(self,card):
+        self.storage.append(card)
+################## END OF CLASSES ,  START OF FUNCTIONS ######################
+
+def move (gamedeck,column_list,foundations_list):
+    choice = input('Move from what, to where?').split(',')
+    for i in range(len(choice)):
+        choice[i] = choice[i].strip()
+    start = choice[0].lower()
+    end = choice [1].lower()
+    cardqty = 1
+    if start == 'column':
+        startindex = int(input("which column to take from?"))
+        cardqty = int(input("How many cards?"))
+    if end == 'column' or end == 'foundation':
+        endindex = int(input("which to put to?"))
+    if start == 'deck':
+        start_obj = gamedeck
+    else:
+        start_obj = column_list[startindex]
+    if end == 'column':
+        end_obj = column_list[endindex]
+    else:
+        end_obj = foundations_list[endindex]
+    moving_obj = start_obj.deal()
+    end_obj.addcard(moving_obj)
+    for times in range(cardqty):
+        pass
+     
+    ##select wat card / cards to move, to where. and check if it fits the rules
+
+    
+def main():
+    ##initializing variables . Does this have to be done manually or can i encapsualte it in a function?
+    gamedeck = Deck()
+    gamedeck.shuffle()
+    columns_list = []
+    ##storage for column instances, any other way? hmmm
+    for i in range(7):
+        acolumn = Column()
+        for j in range(3):
+            acolumn.addcard(gamedeck.deal())
+        acolumn.checktopcardface()
+        columns_list.append(acolumn)  
+    gamedeck.checktopcardface()
+    foundations_list = []
+    for suit in 'SHDC':
+        foundations_list.append(Foundation(suit))
+        
+    command_dict = {'move':move(gamedeck,columns_list,foundations_list)} ###unfinished
+    if input("Welcome Marcus!! Start Game? (Y/N)").lower() == 'y':   
+        command = input('What art thou bidding be?\nType -1 to exit ')
+        while command != 'quit':## entire game loop, revolves around action on deck or columns 
+            
+            command_dict[command]
+            # if command == 'start':
+            #     gamedeck = Deck()
+            #     gamedeck.shuffle()
+            #     for i in range(1,8):
+            #         columni = Column()
+            #         for i in range(3):
+            #             columni.column.append(gamedeck.deal())
+            print('%20s'%(gamedeck))
+            for column in columns_list:    
+                print('%8s'%(column))  ##unfinished print column like actual solitaire format
+            for foundation in foundations_list:
+                print(foundation,end=' ')
+            print()
+                
+            command = input('What art thou bidding be?\nType -1 to exit')
+    else: 
+        print("Bye bye see you again")
+    print("game ended")
+      
+
+main()
+    
