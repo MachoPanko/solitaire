@@ -43,6 +43,9 @@ class Deck:
             pass
         else:
             self.deck[0].face='up'
+    def scroll(self):
+        card = self.deal()
+        self.deck.append(card)
 ## NOTE: Column , deck and foundation are storages of cards.
 ## could be inherited from same baseclass leaving inheriting for later tho
 class Column:
@@ -73,7 +76,7 @@ class Foundation:
     def __str__(self):
         if len(self.storage) == 0:
             return "empty"
-        else: return self.storage[-1]
+        else: return self.storage[-1].__str__()
     def addcard(self,card):
         self.storage.append(card)
 ################## END OF CLASSES ,  START OF FUNCTIONS ######################
@@ -98,12 +101,15 @@ def move (gamedeck,column_list,foundations_list):
         end_obj = column_list[endindex]
     else:
         end_obj = foundations_list[endindex]
-    moving_obj = start_obj.deal()
-    end_obj.addcard(moving_obj)
+
     for times in range(cardqty):
-        pass
-     
-    ##select wat card / cards to move, to where. and check if it fits the rules
+        moving_obj = start_obj.deal()
+        end_obj.addcard(moving_obj)
+        
+    ##unfinished check if it fits the rules
+    
+def scroll(gamedeck,columns_list,foundations_list):
+    gamedeck.scroll()
 
     
 def main():
@@ -123,12 +129,18 @@ def main():
     for suit in 'SHDC':
         foundations_list.append(Foundation(suit))
         
-    command_dict = {'move':move(gamedeck,columns_list,foundations_list)} ###unfinished
+    command_dict = {'move':move,'scroll':scroll} ###unfinished
     if input("Welcome Marcus!! Start Game? (Y/N)").lower() == 'y':   
+        print('%20s'%(gamedeck))
+        for column in columns_list:    
+            print('%8s'%(column))  ##unfinished print column like actual solitaire format
+        for foundation in foundations_list:
+            print(foundation,end=' ')
+        print()
         command = input('What art thou bidding be?\nType -1 to exit ')
+
         while command != 'quit':## entire game loop, revolves around action on deck or columns 
-            
-            command_dict[command]
+            command_dict[command](gamedeck,columns_list,foundations_list) ## note do i have to call all variables? like for scroll i only need gamedeck
             # if command == 'start':
             #     gamedeck = Deck()
             #     gamedeck.shuffle()
@@ -136,13 +148,14 @@ def main():
             #         columni = Column()
             #         for i in range(3):
             #             columni.column.append(gamedeck.deal())
+            gamedeck.checktopcardface()
             print('%20s'%(gamedeck))
             for column in columns_list:    
+                column.checktopcardface()
                 print('%8s'%(column))  ##unfinished print column like actual solitaire format
             for foundation in foundations_list:
                 print(foundation,end=' ')
             print()
-                
             command = input('What art thou bidding be?\nType -1 to exit')
     else: 
         print("Bye bye see you again")
