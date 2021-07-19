@@ -177,50 +177,20 @@ def validity (start_obj, end_obj, cardqty):
             else:
                 return False
 
-def move(gamedeck, column_list, foundations_list):
-    choice = input('Move from which pile, to where?  Input format : Origin pile , Destination Pile ').split(',')
-    for i in range(len(choice)):
-        choice[i] = choice[i].strip().lower()
-    if len(choice) != 2 :
-        return move(gamedeck, column_list, foundations_list)
-    start = choice[0]
-    end = choice[1]
-    cardqty = 1
-    if start[0] == 'c':
-        startindex = int(start[1])-1## unfinished . if wrong input or want to go to other move should add stuffs
-        if end[0] == 'c':
-            cardqty = int(input("How many cards?"))
-    if end[0] == 'c' or end[0] == 'f':
-        endindex = int(end[1])-1
-    if start[0] == 'd':
-        start_obj = gamedeck
-    else:
-        start_obj = column_list[startindex]
-    if end[0] == 'c':
-        end_obj = column_list[endindex]
-    else:
-        end_obj = foundations_list[endindex]
-    if validity(start_obj,end_obj,cardqty):
-        movinglist=[]
-        for times in range(cardqty):
-            moving_obj = start_obj.deal()
-            movinglist.insert(0,moving_obj)
-        for element in movinglist:
-            end_obj.addcard(element)
-    else:
-        print("You have inputted an invalid move. pls try again :D")
 
 
-def help (gamedeck, columns_list,foundations_list):
-    print('''There are 3 piles (c,d,f) c stands for column, d for deck, f for foundation.
+def help ():
+    print('''------------HELP------------
+    There are 3 piles (c,d,f) c stands for column, d for deck, f for foundation.
     <Command input format>
     move : For Column and Foundation, type 'C' / 'F' respectively followed by the pile number. For Deck , just type 'D'
-    E.G. To move from column1 to foundation3, type : c1,f1
+    Example - To move from column1 to foundation3, type : c1,f1
     scroll: no input
-    quit: no input ''')
-def scroll(gamedeck, columns_list, foundations_list):
-    gamedeck.scroll()
+    quit: no input 
+-------------------------------''')
+
 def main():
+
     ##initializing variables . Does this have to be done manually or can i encapsualte it in a function?
     gamedeck = Deck()
     gamedeck.shuffle()
@@ -236,23 +206,59 @@ def main():
     foundations_list = []
     for suit in suits:
         foundations_list.append(Foundation(suit))
+
+    def scroll(gamedeck=gamedeck):
+        gamedeck.scroll()
+    def move(gamedeck=gamedeck, column_list = columns_list, foundations_list = foundations_list):
+        choice = input('Move from which pile, to where?  Input format : Origin pile , Destination Pile ').split(',')
+        for i in range(len(choice)):
+            choice[i] = choice[i].strip().lower()
+        if len(choice) != 2:
+            return move(gamedeck, column_list, foundations_list)
+        start = choice[0]
+        end = choice[1]
+        cardqty = 1
+        if start[0] == 'c':
+            startindex = int(start[1]) - 1  ## unfinished . if wrong input or want to go to other move should add stuffs
+            if end[0] == 'c':
+                cardqty = int(input("How many cards?"))
+        if end[0] == 'c' or end[0] == 'f':
+            endindex = int(end[1]) - 1
+        if start[0] == 'd':
+            start_obj = gamedeck
+        else:
+            start_obj = column_list[startindex]
+        if end[0] == 'c':
+            end_obj = column_list[endindex]
+        else:
+            end_obj = foundations_list[endindex]
+        if validity(start_obj, end_obj, cardqty):
+            movinglist = []
+            for times in range(cardqty):
+                moving_obj = start_obj.deal()
+                movinglist.insert(0, moving_obj)
+            for element in movinglist:
+                end_obj.addcard(element)
+        else:
+            print("You have inputted an invalid move. pls try again :D")
+
     command_dict = {'move': move, 'scroll': scroll, 'help': help}  ###unfinished
     if input("Welcome Marcus!! Start Game? (Y/N)").lower() == 'y':
+        help()
         print(Gamescreen(columns_list,foundations_list,gamedeck))
-        command = input('What art thou bidding be?(move/scroll/quit/help)\nType -1 to exit ')
+        command = input('Type quit to exit \n What art thou bidding be?(move/scroll/quit/help): ')
         while command != 'quit':  ## entire game loop, revolves around action on deck or columns
             if command not in command_dict:
                 command = input('That was a wrong command, sorry not a flexible program, pls try again.')
                 continue
-
-            command_dict[command](gamedeck, columns_list,foundations_list)  ## note do i have to call all variables? like for scroll i only need gamedeck
+            command_dict[command]()  ## note do i have to call all variables? like for scroll i only need gamedeck
             gamedeck.checktopcardface()
             for column in columns_list:
                 column.checktopcardface()
             print(Gamescreen(columns_list,foundations_list,gamedeck))
             if checkwin(foundations_list):
                 break
-            command = input('What art thou bidding be?(move/scroll/quit/help)\nType -1 to exit')
+            command = input('Type quit to exit \n What art thou bidding be?(move/scroll/quit/help):')
         # except:
         #     print("i really dont know what to do if a wrong command is given. helppppp") ###this is really bad... should revert to last command.
         #     main()
